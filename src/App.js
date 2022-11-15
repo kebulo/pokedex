@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 import { useEffect, useState } from 'react';
 
@@ -10,7 +9,7 @@ function App() {
     const [error, setError] = useState(null)
 
     useEffect(() => {
-        fetch(apiLink+'ditto')
+        fetch(apiLink+'?limit=151&offset=0')
             .then((response) => {
                 if (response.ok) {
                     return response.json()
@@ -19,7 +18,16 @@ function App() {
                 throw response;
             })
             .then((data) => {
-                setData(data);
+                let all_data = [];
+                const results = data.results;
+                results.map((item) => { 
+                    all_data.push( fetch(`${item.url}`).then(res => res.json()) )
+                })
+
+                return Promise.all(all_data);
+            })
+            .then((response) => {
+                setData(response);
             })
             .catch((error) => {
                 console.error("Error getting data for Pokedex: ", error);
@@ -36,42 +44,50 @@ function App() {
     return (
         <div className="App">
             <header>
-                <span>{data.name}</span>
-                <span>{data.stats[0].base_stat}</span>
+                Pokedex
             </header>
 
-            <main>
-                <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-inner">
-                        <div class="carousel-item active">
-                            <img src={data.sprites.back_default} alt={data.name+' Back view'} className="d-block w-100" />
+            <main className='container-fluid'>
+                {data.map((item) => (
+                    <div id={'pokedex--pokemon-'+item.name} className='pokedex--main-container col-sm-6 col-md-4 col-lg-3'>
+                        <div>
+                            <span className='float-start pokedex--name'>{item.name.toUpperCase()}</span>
+                            <span className='float-end'>{item.stats[0].base_stat}</span>
                         </div>
-                        <div class="carousel-item">
-                            <img src={data.sprites.front_default} alt={data.name+' Front view'} className="d-block w-100" />
+                        <div id={item.name+'carouselExampleControls'} className="carousel slide" data-bs-ride="carousel">
+                            <div className="carousel-inner">
+                                <div className="carousel-item active">
+                                    <img src={item.sprites.front_default} alt={item.name+' Front view'} />
+                                </div>
+                                <div className="carousel-item">
+                                    <img src={item.sprites.back_default} alt={item.name+' Back view'} />
+                                </div>
+                                <div className="carousel-item">
+                                    <img src={item.sprites.front_shiny} alt={item.name+' Front shiny view'} />
+                                </div>
+                                <div className="carousel-item">
+                                    <img src={item.sprites.back_shiny} alt={item.name+' Back shiny view'} />
+                                </div>
+                            </div>
+                            <button className="carousel-control-prev" type="button" data-bs-target={'#'+item.name+'carouselExampleControls'} data-bs-slide="prev">
+                                <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span className="visually-hidden">Previous</span>
+                            </button>
+                            <button className="carousel-control-next" type="button" data-bs-target={'#'+item.name+'carouselExampleControls'} data-bs-slide="next">
+                                <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span className="visually-hidden">Next</span>
+                            </button>
                         </div>
-                        <div class="carousel-item">
-                            <img src={data.sprites.back_shiny} alt={data.name+' Back shiny view'} className="d-block w-100" />
-                        </div>
-                        <div class="carousel-item">
-                            <img src={data.sprites.front_shiny} alt={data.name+' Front shiny view'} className="d-block w-100" />
+
+                        <div className='pokedex--info-section'>
+                            <span className='float-start'>weight: </span><span className='float-end'>{item.weight}</span> <br />
+                            <span className='float-start'>Pokedex #: </span><span className='float-end'>{item.order}</span> <br />
+                            <span className='float-start'>Height: </span><span className='float-end'>{item.height}</span> <br />
+                            <span className='float-start'>Base Experience: </span><span className='float-end'>{item.base_experience}</span>
                         </div>
                     </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
-                </div>
-
-                <div className='pokedex--info-section'>
-                    <span>weight: {data.weight}</span> <br />
-                    <span>Pokedex #: {data.order}</span> <br />
-                    <span>Height: {data.height}</span> <br />
-                    <span>Base Experience: {data.base_experience}</span>
-                </div>
+                ))}
+                
             </main>
 
             <footer></footer>

@@ -36,3 +36,40 @@
     transform: rotate(360deg);
   }
 }
+
+header{
+    color: #dda502;
+    font-size: 50px;
+    font-weight: bold;
+    font-style: italic;
+    text-shadow: 1px 1px 1px #c13f00;
+}
+
+.pokedex--main-container{
+    background: #398bbd;
+    border: 13px solid #73cdff;
+    border-radius: 5px;
+    color: #FFF;
+    display: inline-block;
+    margin: 5px;
+    padding: 10px;
+}
+
+.pokedex--info-section{
+    display: inline-block;
+    width: 100%;
+}
+
+.pokedex--info-left{
+    float: left;
+}
+
+.pokedex--info-right{
+    float: right;
+}
+
+.pokedex--name{
+    font-size: 24px;
+    font-style: italic;
+    font-weight: bold;
+}
